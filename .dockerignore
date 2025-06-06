@@ -1,0 +1,19 @@
+# Ignore node_modules, as they will be installed inside the container
+node_modules
+
+# Ignore compiled output, as it will be built inside the container
+dist
+
+# Ignore local development files
+.env
+nodemon.json
+
+# Ignore logs
+*.log
+
+# Ignore Docker files
+Dockerfile
+docker-compose.yml
+
+# Ignore git repository
+.git

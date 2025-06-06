@@ -1,0 +1,17 @@
+# The 'version' attribute is obsolete, so we remove it.
+services:
+  backend:
+    build:
+      # Tell Docker to use the Dockerfile in the current directory
+      context: .
+      # Explicitly use the 'builder' stage for development
+      target: builder
+    container_name: documentor_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      # The volume mount now works perfectly with the builder stage
+      # which has the full source code and nodemon.
+      - ./src:/app/src
+    # This command will now succeed because nodemon exists in the 'builder' stage
+    command: npm run dev
