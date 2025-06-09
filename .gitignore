@@ -44,3 +44,6 @@ build/
 # Miscellaneous
 .npm
 .eslintcache
+
+# Ignore model files
+models/

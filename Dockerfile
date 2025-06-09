@@ -1,41 +1,25 @@
-# ---- Stage 1: Build ----
-# This stage installs all dependencies (including dev) and builds our TypeScript code.
-# We use a specific Node.js version for consistency.
-FROM node:20-alpine AS builder
+# 1. Start from an official Node.js image. The 'slim' version is a good balance of size and functionality.
+FROM node:20-slim
 
-# Set the working directory inside the container
+# 2. Set the working directory inside the container to /app
 WORKDIR /app
 
-# Copy package.json and package-lock.json to install dependencies
+# 3. Copy package.json and package-lock.json first.
+# By copying these separately, Docker can use its cache to skip reinstalling dependencies if they haven't changed.
 COPY package*.json ./
+
+# 4. Install all dependencies (including dev dependencies needed for the build)
 RUN npm install
 
-# Copy the rest of our source code
+# 5. Copy the rest of our project's files into the container
 COPY . .
 
-# Compile TypeScript to JavaScript
+# 6. Run the TypeScript build command to compile our .ts files into .js files in the /dist folder
 RUN npm run build
 
-
-# ---- Stage 2: Production ----
-# This stage creates the final, lean image for production.
-# It starts from a fresh, clean base image.
-FROM node:20-alpine
-
-# Set the working directory
-WORKDIR /app
-
-# Copy only the necessary package files from the builder stage
-COPY --from=builder /app/package*.json ./
-
-# Install ONLY production dependencies
-RUN npm install --omit=dev
-
-# Copy the compiled JavaScript code from the builder stage
-COPY --from=builder /app/dist ./dist
-
-# Expose the port the app runs on
+# 7. Tell Docker that our application listens on port 3000
 EXPOSE 3000
 
-# Define the command to run the application
-CMD [ "node", "dist/index.js" ]
+# 8. Define the command to run when the container starts.
+# This runs the compiled JavaScript app from the 'dist' folder.
+CMD [ "npm", "run", "start" ]
