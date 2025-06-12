@@ -1,6 +1,9 @@
 # 1. Start from an official Node.js image. The 'slim' version is a good balance of size and functionality.
 FROM node:20-slim
 
+# Add C++ build tools and python, which are needed for 'faiss-node'
+RUN apt-get update && apt-get install -y build-essential python3
+
 # 2. Set the working directory inside the container to /app
 WORKDIR /app
 

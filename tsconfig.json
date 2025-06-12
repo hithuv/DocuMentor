@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2020",          /* What version of JavaScript to compile to. */
+    "target": "ES2022",          /* What version of JavaScript to compile to. */
     "module": "CommonJS",         /* What module system to use. 'CommonJS' is standard for Node.js. */
+    "lib": ["ES2022", "DOM"],     /*Explicitly include libraries. 'DOM' includes types like Float16Array.*/
     "rootDir": "./src",           /* Where our TypeScript source code lives. */
     "outDir": "./dist",           /* Where the compiled JavaScript output will go. */
     "strict": true,               /* Enables a wide range of type checking for safety. */
-    "esModuleInterop": true       /* Allows us to import CommonJS modules more easily. */
+    "esModuleInterop": true,       /* Allows us to import CommonJS modules more easily. */
+    "skipLibCheck": true,
   }
 }
