@@ -6,6 +6,7 @@ import multer from 'multer';
 import pdf from 'pdf-parse';
 import path from 'path';
 import fs from 'fs';
+import cors from 'cors';
 
 //Langchain Imports
 import {FaissStore} from "@langchain/community/vectorstores/faiss";
@@ -13,8 +14,11 @@ import { HuggingFaceTransformersEmbeddings} from '@langchain/community/embedding
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document } from "@langchain/core/documents";
 
+
+
 //App Setup
 const app: Application = express();
+app.use(cors()); //use CORS middleware
 const PORT: number = 3000;
 app.use(express.json());
 
@@ -141,7 +145,8 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
       const augmentedPrompt = `
         You are a helpful AI assistant. Answer the user's question based ONLY on the following context.
-        If the context doesn't contain the answer, say "I do not have enough information to answer that."
+        If the context doesn't contain the answer, say "I do not have enough information to answer that. But I think... " and continue your own answer which is not in the context. The user should know it is not from the context.
+        
 
         CONTEXT:
         ${context}
