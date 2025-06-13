@@ -2,6 +2,8 @@
 import express, { Request, Response, Application } from 'express';
 import Groq from 'groq-sdk';
 import 'dotenv/config';
+import multer from 'multer';
+import pdf from 'pdf-parse';
 
 //Langchain Imports
 import {FaissStore} from "@langchain/community/vectorstores/faiss";
@@ -13,6 +15,9 @@ import { Document } from "@langchain/core/documents";
 const app: Application = express();
 const PORT: number = 3000;
 app.use(express.json());
+
+//Tell Multer to store the uploaded file in RAM as a buffer, instead of disk.
+const upload = multer({storage: multer.memoryStorage()});
 
 //Groq AI Client
 const groq = new Groq({
@@ -37,15 +42,30 @@ app.get('/', (req: Request, res: Response) => {
     });
 });
 
-app.post('/api/ingest', async (req: Request, res: Response) => {
-  const {text} = req.body;
+app.post('/api/ingest', upload.single('file'),async (req: Request, res: Response) => {
 
-  if(!text){
-    return res.status(400).json({error: 'Text content is required'});
+  if(!req.file){
+    return res.status(400).json({error: 'No file uploaded'});
   }
 
   try{
-    console.log('--- Starting Ingestion ---');
+    console.log('--- Starting Ingestion from file ---');
+    // const text = req.file.buffer.toString('utf-8');
+    let text: string;
+
+    if(req.file.mimetype === 'application/pdf'){
+      console.log('Parsing PDF file...');
+      const pdfData = await pdf(req.file.buffer);
+      text = pdfData.text;
+    }
+    else if (req.file.mimetype === 'text/plain'){
+      console.log('Parsing text file...');
+      text = req.file.buffer.toString('utf-8');
+    }
+    else{
+      return res.status(400).json({error: 'Unsupported file type. Please upload a .txt or .pdf file.'});
+    }
+
     const textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 1000,
       chunkOverlap: 200,
