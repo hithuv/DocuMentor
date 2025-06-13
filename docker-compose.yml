@@ -9,3 +9,6 @@ services:
       - "3000:3000"
     env_file:
       - .env
+    volumes:
+    # create a sync between a 'vector_store' folder locally and the /app/vector_store' folder inside the container
+      - ./vector_store:/app/vector_store

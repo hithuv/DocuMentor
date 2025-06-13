@@ -17,3 +17,6 @@ docker-compose.yml
 
 # Ignore git repository
 .git
+
+#ignore the vector store
+vector_store/

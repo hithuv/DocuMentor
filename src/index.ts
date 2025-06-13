@@ -4,6 +4,8 @@ import Groq from 'groq-sdk';
 import 'dotenv/config';
 import multer from 'multer';
 import pdf from 'pdf-parse';
+import path from 'path';
+import fs from 'fs';
 
 //Langchain Imports
 import {FaissStore} from "@langchain/community/vectorstores/faiss";
@@ -32,6 +34,26 @@ let vectorStore: FaissStore | null = null;
 const embeddings = new HuggingFaceTransformersEmbeddings({
     model: 'Xenova/all-MiniLM-L6-v2',
 });
+
+//Path for persistent vector store
+const FAISS_PATH = path.resolve(process.cwd(), "vector_store");
+
+//loads the vector store on startup
+async function loadVectorStore(){
+  console.log('Checking for existing vector store...');
+  try {
+    if (fs.existsSync(FAISS_PATH)){
+      vectorStore = await FaissStore.load(FAISS_PATH, embeddings);
+      console.log('Vector Store loaded from disk');
+    }
+    else{
+      console.log('No existing vector store found');
+    }
+  }
+  catch (error){
+    console.error('Error loading vector store:', error);
+  }
+}
 
 
 // Add types to the request and response parameters
@@ -75,8 +97,18 @@ app.post('/api/ingest', upload.single('file'),async (req: Request, res: Response
     ]);
     console.log(`Text Split into ${docs.length} chunks.`);
 
-    console.log(`Creating vector store...`);
-    vectorStore = await FaissStore.fromDocuments(docs, embeddings);
+    console.log(`Creating new vector store...`);
+    const newVectorStore = await FaissStore.fromDocuments(docs, embeddings);
+
+    if(vectorStore){
+      console.log('Merging with existing vectorStore...');
+      await vectorStore.mergeFrom(newVectorStore);
+    }
+    else{
+      vectorStore = newVectorStore;
+    }
+    console.log('Saving vector store to disk...');
+    await vectorStore.save(FAISS_PATH);
     console.log('--- Ingestion complete. Vector Store is ready. ---');
 
     res.status(200).json({message: `Success! Ingested ${docs.length} document chunks`});
@@ -143,7 +175,8 @@ app.post('/api/chat', async (req: Request, res: Response) => {
     }
   });
   
-
-app.listen(PORT, () => {
-  console.log(`Server is running successfully on http://localhost:${PORT}`);
+loadVectorStore().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running successfully on http://localhost:${PORT}`);
+  });
 });

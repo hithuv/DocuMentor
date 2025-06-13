@@ -47,3 +47,6 @@ build/
 
 # Ignore model files
 models/
+
+#ignore saved vector store directory
+vector_store/
