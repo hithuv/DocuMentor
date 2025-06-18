@@ -1,6 +1,6 @@
 # DocuMentor
 
-DocuMentor is a full-stack, containerized **Retrieval Augmented Generation (RAG)** application. It allows users to upload their own documents and make conversation with a LLM that uses the document content.
+DocuMentor is a full-stack, containerized **Retrieval Augmented Generation (RAG)** application. It allows users to upload their own documents and make conversation with a LLM that uses the document content. I also let it answer questions not from the context, but in that case it says : 'I think ...'. So you know it is not answered from the context.
 
 ---
 
@@ -62,7 +62,7 @@ Follow these steps to get the application running on your local machine.
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/hithuv/DocuMentor.git](https://github.com/hithuv/DocuMentor.git)
+git clone https://github.com/hithuv/DocuMentor.git
 cd DocuMentor
 ```
 
@@ -83,7 +83,7 @@ npm install
 The backend requires an API key from [Groq](https://groq.com/) to access the LLM.
 
 1.  Navigate to the `backend` directory: `cd ../backend`
-2.  Create a copy of the example environment file: `cp .env.example .env`
+2.  Create an environment file: `touch .env`
 3.  Open the new `.env` file and add your Groq API key:
     ```.env
     GROQ_API_KEY=gsk_YourSecretKeyFromGroqHere
